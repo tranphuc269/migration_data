@@ -1,0 +1,33 @@
+{
+  "data": {
+    "id": 782,
+    "orgId": 173,
+    "applicationId": 163,
+    "workspace": {
+      "id": 326,
+      "orgId": 173,
+      "name": "So hoa van ban",
+      "description": "So hoa tai lieu",
+      "createdAt": "2023-10-26T03:25:06.000Z"
+    },
+    "document": {
+      "id": 352,
+      "orgId": 173,
+      "hashMD5": "938c2cc0dcc05f2b68c4287040cfcf71",
+      "name": "cmnd.png",
+      "size": 106372,
+      "mimetype": "image/png"
+    },
+    "startTime": "2023-10-26T03:25:06.000Z",
+    "startExtractionTime": "2023-10-26T03:25:06.000Z",
+    "endExtractionTime": "2023-10-26T03:25:06.000Z",
+    "endTime": "2023-10-26T03:25:06.000Z",
+    "coreVersion": "idcard-0.0.1",
+    "status": 1,
+    "createdAt": "2023-10-26T03:25:06.000Z"
+  },
+  "meta": {
+    "message": "Success",
+    "code": 200
+  }
+}
