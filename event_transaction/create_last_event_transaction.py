@@ -35,6 +35,9 @@ dbs = pymongo.MongoClient(
 
 c_order = dbs['baobab'].orders
 c_event_transaction = dbs['baobab'].event_transactions
+
+valid_trans = []
+
 for document in c_order.find({}):
     print('Dữ liệu document convert :: {}'.format(document))
     if "payment_provider" in document:
@@ -60,32 +63,46 @@ for document in c_order.find({}):
             # insert payment success before insert payment refund
             event_trans_data['trans_type'] = 0
             if isinstance(document['created_at'], float):
-                event_trans_data['trans_time'] = datetime.datetime.fromtimestamp(document['created_at'] / 1000)
+                event_trans_data['trans_time'] = datetime.datetime.utcfromtimestamp(document['created_at'] / 1000)
             else:
                 event_trans_data['trans_time'] = document['created_at']
             print('Dữ liệu event transaction success trước khi refund insert :: {}'.format(event_trans_data))
             _before_refund_data = event_trans_data.copy()
             _before_refund_data['_id'] = ObjectId()
-            data = c_event_transaction.insert_one(_before_refund_data)
-            print('Đã thêm dữ liệu trước khi refund :: {}'.format(data.inserted_id))
+            valid_trans.append(_before_refund_data)
+            # data = c_event_transaction.insert_one(_before_refund_data)
+            # print('Đã thêm dữ liệu trước khi refund :: {}'.format(data.inserted_id))
 
             event_trans_data['trans_type'] = 1
-            time.sleep(1)
+            # time.sleep(1)
         if document['payment_status'] == 1:
             event_trans_data['trans_type'] = 0
 
         if event_trans_data['trans_type'] != -1:
 
             if isinstance(document['created_at'], float):
-                event_trans_data['trans_time'] = datetime.datetime.fromtimestamp(document['created_at'] / 1000)
+                event_trans_data['trans_time'] = datetime.datetime.utcfromtimestamp(document['created_at'] / 1000)
             else:
                 event_trans_data['trans_time'] = document['created_at']
 
             print('Dữ liệu event transaction insert :: {}'.format(event_trans_data))
-            data = c_event_transaction.insert_one(event_trans_data)
-            time.sleep(1)
-            print('Đã thêm dữ liệu :: {}'.format(data.inserted_id))
+            valid_trans.append(event_trans_data)
+            # data = c_event_transaction.insert_one(event_trans_data)
+            # time.sleep(1)
+            # print('Đã thêm dữ liệu :: {}'.format(data.inserted_id))
         else:
             print('Dữ liệu không thể tạo transaction event')
         print('======================================')
-        time.sleep(1)
+        # time.sleep(1)
+
+print("valid trans", len(valid_trans))
+print("len", len(valid_trans), len(valid_trans)/20)
+
+chunks = []
+for chunk_num in range(0, int(len(valid_trans)/20) + 1):
+    chunks.append(valid_trans[chunk_num * 20:(chunk_num+1) * 20])
+
+for (idx, chunk) in enumerate(chunks):
+    res = c_event_transaction.insert_many(chunk)
+    print("chunk", idx, "insert")
+
